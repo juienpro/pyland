@@ -43,7 +43,7 @@ If you type `./pyland.py -l`, Pyland will be launched with the dummy configurati
 |-------------------|-------------------------------------|---------------------------------------- |
 | Hyprland          | on_hyprland_event                   | event, arguement                        |
 | Systemd Logind    | on_systemd_event                    | interface, member                       |
-| Systemd Login     | on_<Member>                         | None                                    |
+| Systemd Logind     | on_[Member]                         | None                                    |
 | Pyland            | on_idle                             | Number of seconds since the last Hyprland event |
 
 
@@ -91,7 +91,7 @@ See the file `libs/Command.py` for more information.
 - I don't have enough knowledge to know how to connect to the Wayland API from Python, to interact directly with `wlroots` protocols. It would be a nice addition
 - Integrating other DBUS services should be easy with Pyland (type `dbusctl` to list all avalable DBUS on your system).
 
-If you see some bugs or propose paths, feel free to contribute.
+If you see some bugs or propose patches, feel free to contribute.
 
 
 ## Thanks
