@@ -37,6 +37,28 @@ Read both files to understand how it works.
 
 If you type `./pyland.py -l`, Pyland will be launched with the dummy configuration. Otherwise, it will be launched with the configuration mentioned at the top of the `pyland.py` file.
 
+### Simplest configuration 
+
+```
+import libs.Daemon as Daemon
+from libs.Log import logger
+
+class Main():
+    def __init__(self):
+        self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
+
+    def on_hyprland_event(self, event, argument):
+        logger.info("Hyprland: Receveived '"+event +"' with argument "+argument.strip())        
+    
+    def on_idle(self, time_elapsed):
+        if time_elapsed >= 600: # 10 mn
+            logger.info('Hey, you are idling!')
+
+    def on_systemd_event(self, interface, member):
+        logger.info("Systemd: Receveived '"+member+"' from "+ interface)
+
+```
+
 ### Available listeners
 
 | Sender            | Handler method to add to your class | Arguments                               |
