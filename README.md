@@ -26,7 +26,7 @@ By scripting my Desktop in Python, I feel I have more control to implement what 
 This program needs the following tools: 
 - Python3 with the following modules: argparse, importlib, logging, subprocess, threading
 - The `socat` binary ([Arch](https://archlinux.org/packages/extra/x86_64/socat/))
-- The `dbus-monitor` binary ([Arch](https://archlinux.org/packages/core/x86_64/dbus/))
+- The `gdbus` binary ([Arch](https://archlinux.org/packages/core/x86_64/glib2/))
 
 ## How to use
 
@@ -64,8 +64,8 @@ class Main():
 | Sender            | Handler method to add to your class | Arguments                               |
 |-------------------|-------------------------------------|---------------------------------------- |
 | Hyprland          | on_hyprland_event                   | event, arguement                        |
-| Systemd Logind    | on_systemd_event                    | interface, member                       |
-| Systemd Logind     | on_[Member]                         | None                                    |
+| Systemd Logind    | on_systemd_event                    | sender, signal, payload                       |
+| Systemd Logind     | on_[signal]                         | payload                                    |
 | Pyland            | on_idle                             | Number of seconds since the last Hyprland event |
 
 
@@ -75,20 +75,33 @@ They are well documented [here](https://wiki.hyprland.org/IPC/).
 
 #### Systemd Logind events
 
-These events are called "signals" in the Systemd terminology. The `interface` is the sender and the `member` is the payload.
+These events are called "signals" in the Systemd terminology. 
 
 They are not well documented but you can try to [read that](https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.login1.html) (good luck). 
+
+The best way to implement what you want is to do first a `pyland.py -l` so you will get a dump of all signals received.
 
 Some examples that can be useful:
 
 | Member | Description  |
 |------- |-------------------------------------------------------------------|
 | PrepareForShutdown | Sent before a shutdown |
+| PrepareForSleep | Sent before suspend |
 | Lock | Sent when a lock is requested, eg `loginctrl lock-session` |
 | Unlock | Sent when an unlock is requested | 
 | SessionNew | When a session is created |
 
 And probably others but I am not an expert of Systemd (yet!). I need to do some tests.
+
+To see an example on how to lock your screen before suspend, check the `myConfig.py` file:
+
+```
+def on_PrepareForSleep(self, payload):
+    if 'true' in payload:
+        logger.info("Locking the screen before suspend")
+        self.command.shell_command("hyprlock")
+```
+Yes, it's literally 4 lines to add to your class!
 
 #### Idle event
 

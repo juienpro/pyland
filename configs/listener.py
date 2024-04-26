@@ -13,7 +13,7 @@ class Main():
         logger.info('Current idle time (sec): '+ str(time_elapsed))
 
 
-    def on_systemd_event(self, interface, member):
-        logger.info("Systemd: Receveived '"+member+"' from "+ interface)
+    def on_systemd_event(self, sender, signal, payload):
+        logger.info("Systemd: Receveived from '"+sender+"': "+ signal +' with payload: '+payload)
 
 

@@ -51,16 +51,21 @@ class Daemon():
 
     def launch_systemd_login_daemon(self):
         logger.info('Launching systemd daemon')
-        cmd = "dbus-monitor --system \"type='signal',sender='org.freedesktop.login1'\""
+        cmd = "gdbus monitor --system --dest org.freedesktop.login1"
         ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         while True:
             for line in iter(ps.stdout.readline, ""):
                 decoded_line = line.decode("utf-8").strip()
-                res = re.match(r'.*interface=(.+?); member=(.+)$', decoded_line)
+                res = re.match(r'(.+?): ([^\s]+?) \((.*?)\)$', decoded_line)
                 if res:
-                    interface = res.group(1)
-                    member = res.group(2)
-                    f = 'on_' + member
-                    self.call_handler(f)
-                    self.call_handler('on_systemd_event', interface, member)
+                    sender = res.group(1)
+                    name = res.group(2)
+                    payload = res.group(3)
+
+                    if 'Properties' not in name:
+                        signal_name = name.split('.')[-1]
+                        f = 'on_' + signal_name 
+                        self.call_handler(f, payload)
+                        self.call_handler('on_systemd_event', sender, signal_name, payload)
+   
 

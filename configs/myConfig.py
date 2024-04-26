@@ -6,8 +6,8 @@ class Main():
 
     def __init__(self):
         self.command = Command.Command()
-        self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
         self.step = 0
+        self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
 
     def on_hyprland_event(self, event, argument):
         if event in [ "monitoradded", "monitorremoved" ]:
@@ -34,7 +34,11 @@ class Main():
             self.step = 3
             self.command.hyprctl_command("dispatch dpms off")
             
-        
+    def on_PrepareForSleep(self, payload):
+        if 'true' in payload:
+            logger.info("Locking the screen before suspend")
+            self.command.shell_command("hyprlock")
+
     def set_monitors(self):
         logger.info('Setting monitors')
         if self.command.get_monitor(description="HP 22es") is not None:
