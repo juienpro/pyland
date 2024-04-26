@@ -5,7 +5,7 @@ import sys
 from libs.Log import logger
 
 
-version = '0.4'
+version = '0.5'
 
 # Change your config here
 active_config = 'myConfig'

@@ -1,10 +1,7 @@
-import libs.Daemon as Daemon
 from libs.Log import logger
+from libs.Config import Config
 
-class Main():
-    def __init__(self):
-        self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
-
+class Main(Config):
     def on_hyprland_event(self, event, argument):
         logger.info("Hyprland: Receveived '"+event +"' with argument "+argument.strip())        
     

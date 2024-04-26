@@ -8,6 +8,7 @@ class Daemon():
 
     def __init__(self, caller, watchers):
         self.caller = caller 
+        self.idle_step = 'normal' 
         self.last_event_time = time.time()
         if 'hyprland' in watchers:
             hyprland_thread = threading.Thread(target=self.launch_hyprland_daemon)
@@ -23,19 +24,18 @@ class Daemon():
         func = getattr(self.caller, handler, None)
         if callable(func):
             func(*argv)
+    
+    def set_idle_step(self, value):
+        if self.idle_step != value:
+            logger.info('Changing idle step from ' + self.idle_step + ' to ' + value)
+            self.idle_step = value
 
     def launch_idle_daemon(self):
         logger.info('Launching idle daemon')
         while True:
             if callable(getattr(self.caller, 'on_idle', None)):
                 self.call_handler('on_idle', time.time() - self.last_event_time)
-            time.sleep(2)
-
-
-    # def launch_idle_daemon(self):
-    #     logger.info('Launching idle daemon')
-    #     timer_thread = threading.Thread(target=self.thread_timer)
-        # timer_thread.start()
+            time.sleep(1)
 
     def launch_hyprland_daemon(self):
         logger.info('Launching hyprland daemon')

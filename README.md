@@ -40,23 +40,56 @@ If you type `./pyland.py -l`, Pyland will be launched with the dummy configurati
 ### Simplest configuration 
 
 ```
-import libs.Daemon as Daemon
 from libs.Log import logger
+from libs.Config import Config
 
-class Main():
-    def __init__(self):
-        self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
-
+class Main(Config):
     def on_hyprland_event(self, event, argument):
         logger.info("Hyprland: Receveived '"+event +"' with argument "+argument.strip())        
     
     def on_idle(self, time_elapsed):
-        if time_elapsed >= 600: # 10 mn
-            logger.info('Hey, you are idling!')
+        logger.info('Current idle time (sec): '+ str(time_elapsed))
 
-    def on_systemd_event(self, interface, member):
-        logger.info("Systemd: Receveived '"+member+"' from "+ interface)
+    def on_systemd_event(self, sender, signal, payload):
+        logger.info("Systemd: Receveived from '"+sender+"': "+ signal +' with payload: '+payload)
 
+```
+
+### Real configuration
+
+```
+from libs.Log import logger
+from libs.Config import Config
+
+class Main(Config):
+
+    def on_hyprland_event(self, event, argument):
+        if event in [ "monitoradded", "monitorremoved" ]:
+            logger.info('Handling hyprland event: ' + event)
+            self.set_monitors()
+   
+    
+    def set_idle_config(self):
+        self.add_timeout(10, ['brightnessctl -s set 0'], ['brightnessctl -r'])
+        self.add_timeout(20, ['hyprlock'])
+        self.add_timeout(720, ['hyprctl dispatch dpms off'], ['hyprctl dispatch dpms on'])
+
+
+    def on_idle(self, time_elapsed):
+        self.do_idle_with_config(time_elapsed)
+
+    def on_PrepareForSleep(self, payload):
+        if 'true' in payload:
+            logger.info("Locking the screen before suspend")
+            self.command.shell_command("hyprlock")
+
+    def set_monitors(self):
+        logger.info('Setting monitors')
+        if self.command.get_monitor(description="HP 22es") is not None:
+            self.command.hyprctl_command('keyword monitor "eDP-1,disable"')
+        else:
+            self.command.hyprctl_command('keyword monitor "eDP-1,preferred,auto,2"')
+            self.command.shell_command("brightnessctl -s set 0")
 ```
 
 ### Available listeners
@@ -111,6 +144,27 @@ It's a workaround: if you launch a text editor and type in this editor without c
 
 For my usage, it's enough, but for a real idling program, use `hypridle`.
 
+To use it, you have two choices:
+- Setting up an `on_idle` hook. This method takes the elapsed time as the argument. Then you are free to implement your workflow in this method.
+- Use `set_idle_config` and `on_idle`, which is much easier as it will compute everything for you. 
+
+```
+def set_idle_config(self):
+    self.add_timeout(10, ['brightnessctl -s set 0'], ['brightnessctl -r'])
+    self.add_timeout(20, ['hyprlock'])
+    self.add_timeout(720, ['hyprctl dispatch dpms off'], ['hyprctl dispatch dpms on'])
+
+def on_idle(self, time_elapsed):
+    self.do_idle_with_config(time_elapsed)
+
+```
+You can add unlimited "timeouts" with `self.add_timeout`. This method takes three parameters:
+
+- The timeout in itself (10 seconds, 20 seconds, 720 seconds respectively)
+- The commands to apply when the elapsed time above the value
+- The commands to apply when the elapsed time is reseted due to an activity
+
+
 ### Available helpers
 
 There are two main helpers:
@@ -125,6 +179,7 @@ See the file `libs/Command.py` for more information.
 
 - I don't have enough knowledge to know how to connect to the Wayland API from Python, to interact directly with `wlroots` protocols. It would be a nice addition
 - Integrating other DBUS services should be easy with Pyland (type `dbusctl` to list all avalable DBUS on your system).
+- If someone has a solution to get the real idle time from Hyprland/Wlroots, it would be welcomed. This value is not exposed in DBUS signals.
 
 If you see some bugs or propose patches, feel free to contribute.
 
