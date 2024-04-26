@@ -10,10 +10,11 @@ class Main(Config):
     
     def set_idle_config(self):
         self.add_timeout(150, ['brightnessctl -s set 0'], ['brightnessctl -r'])
-        self.add_timeout(600, ['hyprlock'])
+        self.add_timeout(600, ['hyprlock &'])
         self.add_timeout(720, ['hyprctl dispatch dpms off'], ['hyprctl dispatch dpms on'])
 
     def on_idle(self, time_elapsed):
+        logger.info(time_elapsed)
         self.do_idle_with_config(time_elapsed)
 
     def on_PrepareForSleep(self, payload):

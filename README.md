@@ -151,7 +151,7 @@ To use it, you have two choices:
 ```
 def set_idle_config(self):
     self.add_timeout(10, ['brightnessctl -s set 0'], ['brightnessctl -r'])
-    self.add_timeout(20, ['hyprlock'])
+    self.add_timeout(20, ['hyprlock &'])
     self.add_timeout(720, ['hyprctl dispatch dpms off'], ['hyprctl dispatch dpms on'])
 
 def on_idle(self, time_elapsed):
@@ -171,6 +171,8 @@ There are two main helpers:
 
 - `hyprctl_command` to send a command with hyprctl and to get the result in JSON
 - `shell_command` to send a shell command and returns the result
+
+Any shell command ending with '&' will be executed asynchronously. This allows to prevent any blocking thread. For instance, if you launch `hyprlock`, don't forget to add a '&' otherwise no other event can be processed anymore by Pyland.
 
 See the file `libs/Command.py` for more information.
 

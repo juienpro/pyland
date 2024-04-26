@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 import time
 import threading
 from libs.Log import logger
@@ -46,10 +47,17 @@ class Command():
             return decoded_output
         return json_output
     
-    def shell_command(self, command, register_key = None, registe_value = None):
-        logger.info("Executing command: "+command) 
-        output = subprocess.check_output(command, shell=True)
-        decoded_output = output.decode("utf-8")
-        return decoded_output
+    def shell_command(self, command):
+        command = command.strip()
+        if command.endswith('&'):
+            command = command[:-1]
+            logger.info("Executing background command: "+command)
+            with open(os.devnull, 'w') as fp:
+                subprocess.Popen(command, shell=True, stdout=fp)
+        else:
+            logger.info("Executing command: "+command) 
+            output = subprocess.check_output(command, shell=True)
+            decoded_output = output.decode("utf-8")
+            return decoded_output
 
 

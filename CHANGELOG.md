@@ -1,4 +1,8 @@
 
+## v0.6 (2024-04-26) 
+
+- Added support for background shell commands by adding & at the end of the command. Should fix the issue with hyprlock that blocks a thread.
+- Rename CHANGELOG.txt to CHANGELOG.md
 
 ## v0.5 (2024-04-26) 
 
