@@ -7,6 +7,7 @@ class Main():
     def __init__(self):
         self.command = Command.Command()
         self.daemon = Daemon.Daemon(self, ['hyprland', 'idle', 'systemd'])
+        self.step = 0
 
     def on_hyprland_event(self, event, argument):
         if event in [ "monitoradded", "monitorremoved" ]:
@@ -14,24 +15,23 @@ class Main():
             self.set_monitors()
         
     def on_idle(self, time_elapsed):
-        step = 0
-        if time_elapsed < 150 and step != 0:
-            if step == 1:
+        if time_elapsed < 150 and self.step != 0:
+            if self.step == 1:
                 self.command.shell_command("brightnessctl -r")
-            elif step == 3:
+            elif self.step == 3:
                 self.command.hyprctl_command("dispatch dpms on")
             step = 0
 
-        if time_elapsed >= 150 and step == 0:
-            step = 1
+        if time_elapsed >= 150 and self.step == 0:
+            self.step = 1
             self.command.shell_command("brightnessctl -s set 0")
 
-        if time_elapsed > 600 and step != 2:
-            step = 2
+        if time_elapsed > 600 and self.step != 2:
+            self.step = 2
             self.command.shell_command("loginctl lock-session")
 
-        if time_elapsed > 720 and step != 3:
-            step = 3
+        if time_elapsed > 720 and self.step != 3:
+            self.step = 3
             self.command.hyprctl_command("dispatch dpms off")
             
         
