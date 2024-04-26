@@ -1,0 +1,19 @@
+
+
+## v0.4 (2024-04-26) 
+
+- Added Changelog.txt
+
+## v0.3 (2024-04-26) 
+
+- DBUS monitoring is made with `gdbus` instead of `dbus-monitor`. Indeed, `gdbus` displays received messages on a single line, including the payload, which ease the parsing.
+- Includes the payload in Systemd handler functions
+- Added version number to the script
+
+## v0.2 (2024-04-26) 
+
+- Updated myConfig to fix a bug in the Idle handler 
+
+## v0.1 (2024-04-25) 
+
+- Initial Release
