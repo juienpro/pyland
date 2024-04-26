@@ -20,7 +20,7 @@ class Main():
                 self.command.shell_command("brightnessctl -r")
             elif self.step == 3:
                 self.command.hyprctl_command("dispatch dpms on")
-            step = 0
+            self.step = 0
 
         if time_elapsed >= 150 and self.step == 0:
             self.step = 1
