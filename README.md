@@ -1,3 +1,6 @@
+This project has been archived. The new version (much much better) as it supports the native Idle Wayland protocol, Sway, and many other things, is avalable [here](https://github.com/juienpro/easyland)
+
+
 # Pyland
 
 **Pyland** is a customizable event-driven Python listener for Hyprland. It currently supports three listeners:
